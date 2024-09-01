@@ -1,0 +1,35 @@
+AZURE CI/CD PIPELINE
+
+az group create --name myResourceGroup --location centralindia
+
+az provider register --namespace Microsoft.ContainerService
+az provider show --namespace Microsoft.ContainerService --query "registrationState"
+
+az ad sp create-for-rbac --name myNewServicePrincipal
+
+az role assignment create --assignee apkey --role Owner --scope /subscriptions/subkey
+
+az role assignment list --assignee apkey
+
+az role assignment list --assignee apkey --output table
+
+az aks create \ --resource-group myResourceGroup \
+--name myAKSCluster \
+--node-count 1 \
+--enable-addons monitoring \
+--generate-ssh-keys \
+--node-vm-size Standard_B2s \
+--location centralindia
+
+az aks get-credentials --resource-group MC_myResourceGroup_myAKSCluster_centralindia --name myAKSCluster
+
+az group list --output table
+az aks list --output table
+az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+
+ kubectl get svc
+kubectl get pods    
+
+kubectl delete deployment my-flask-app
+kubectl delete --all pods,services,deployments,replicasets
+az group delete --name myResourceGroup --yes --no-wait    
