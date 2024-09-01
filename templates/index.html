@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Sentiment Analysis </title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+    
+        body.light-mode {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+    
+        header {
+            background-color: #121212;
+            padding: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+    
+        header.light-mode {
+            background-color: #f0f0f0;
+        }
+    
+        .burger-menu {
+            display: none; /* Hide by default */
+            cursor: pointer;
+        }
+    
+        .burger-menu span {
+            display: block;
+            width: 30px;
+            height: 4px;
+            background-color: #fff;
+            margin: 5px auto;
+            transition: all 0.3s ease;
+        }
+    
+        .burger-menu.light-mode span {
+            background-color: #333;
+        }
+    
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+    
+        nav li {
+            margin-right: 20px;
+        }
+    
+        nav a {
+            color: #fff;
+            text-decoration: none;
+        }
+    
+        nav a.light-mode {
+            color: #333;
+        }
+    
+        nav ul.show {
+            display: block;
+            position: absolute;
+            top: 60px;
+            left: 0;
+            background-color: #121212;
+            padding: 20px;
+            width: 100%;
+            z-index: 10;
+        }
+    
+        nav ul.show.light-mode {
+            background-color: #f0f0f0;
+        }
+    
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            margin-top: 60px;
+        }
+    
+        .hero {
+            text-align: center;
+        }
+    
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+    
+        #text-input {
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    padding: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+    height: auto; /* Increased width to 80% */
+    resize: none;
+    border-radius: 5px; /* Added border-radius */
+    position: relative; /* Position for radium effect */
+}
+    
+        #text-input.light-mode {
+            background-color: #f9f9f9;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+    
+        #text-input::before,
+        #text-input::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: inherit; /* Inherit border-radius from textarea */
+            animation: radium 3s linear infinite;
+        }
+    
+        #text-input::before {
+            border: 2px solid rgba(128, 0, 128, 0.2); /* Purple radium */
+        }
+    
+        #text-input::after {
+            border: 2px solid rgba(0, 128, 128, 0.2); /* Cyan radium */
+            animation-delay: 1.5s;
+        }
+    
+        @keyframes radium {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    
+        .button {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+    
+        .button:hover {
+            background-color: #45a049;
+        }
+    
+        .result {
+            margin-top: 40px;
+        }
+    
+        .result h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+    
+        #result {
+            background-color: #222;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            border-radius: 5px;
+        }
+    
+        #result.light-mode {
+            background-color: #f9f9f9;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+    
+        .error {
+            color: red;
+        }
+    
+        footer {
+            background-color: #121212;
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            margin-top: 30px;
+        }
+    
+        footer.light-mode {
+            background-color: #f0f0f0;
+        }
+    
+        footer p {
+            margin: 0;
+        }
+    
+        footer p.light-mode {
+            color: #333;
+        }
+    
+        .theme-switch {
+                position: absolute;
+                top: 20px;
+                right: 40px; /* Adjusted from 20px to 40px */
+                display: flex;
+                align-items: center;
+        }
+    
+        .theme-switch input[type="checkbox"] {
+            display: none;
+        }
+    
+        .theme-switch label {
+            display: flex;
+            align-items: auto;
+            width: 40px; /* Adjust width */
+            height: 20px; /* Adjust height */
+            background-color: #f0f0f0;
+            border-radius: 50px;
+            padding: 2px; /* Adjust padding */
+            transition: background-color 0.3s ease;
+            position: relative;
+            justify-content: center;
+            cursor: pointer;
+        }
+    
+        .theme-switch label::before {
+            content: "";
+            width: 16px; /* Adjust size */
+            height: 16px; /* Adjust size */
+            background-color: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            position: absolute;
+            left: 2px; /* Adjust position */
+        }
+    
+        .theme-switch input[type="checkbox"]:checked + label {
+            background-color: #333;
+        }
+    
+        .theme-switch input[type="checkbox"]:checked + label::before {
+            transform: translateX(20px); /* Adjust translate */
+        }
+    
+        .theme-switch label.sun::before {
+            background-image: url('sun-icon.svg'); /* Add path to your sun icon */
+            background-size: cover;
+        }
+    
+        .theme-switch label.moon::before {
+            background-image: url('moon-icon.svg'); /* Add path to your moon icon */
+            background-size: cover;
+        }
+    
+        body.light-mode .theme-switch label {
+            background-color: #ffcc00;
+        }
+    
+        body.light-mode .theme-switch label.sun::before {
+            background-image: url('sun-icon.svg'); /* Ensure sun icon is correct */
+        }
+    
+        body.light-mode .theme-switch label.moon::before {
+            background-image: url('moon-icon.svg'); /* Ensure moon icon is correct */
+        }
+        body.light-mode nav a {
+    color: #333; /* Dark text color */
+}
+    
+        @media screen and (max-width: 768px) {
+            nav ul {
+                display: none;
+            }
+    
+            .burger-menu {
+                display: block;
+            }
+        }
+    </style>
+    
+
+</head>
+<body>
+    <header>
+        <div class="burger-menu" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <nav id="nav-sidebar">
+            <ul id="nav-list">
+                <li><a href="#" ></a></li>
+                <li><a href="#"></a></li>
+                <li><a href="#"></a></li>
+            </ul>
+        </nav>
+        <div class="theme-switch">
+            <input type="checkbox" id="theme-switch-checkbox">
+            <label for="theme-switch-checkbox" class="sun"></label>
+        </div>
+    </header>
+    <main>
+        <section class="hero">
+            <h1>AI Sentiment Analysis Web App</h1>
+            <p>Enter the text you want to analyze:</p>
+           
+            <textarea id="text-input" rows="5" cols="10" placeholder="Enter text here..."></textarea>
+            <button class="button" onclick="analyze()">Analyze Sentiment</button>
+        </section>
+        <section class="result">
+            <h2>Result:</h2>
+            <div id="result"></div>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2024 AI Sentiment Analysis</p>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            const navList = document.getElementById('nav-list');
+            navList.classList.toggle('show');
+        }
+
+        async function analyze() {
+            const text = document.getElementById('text-input').value;
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ text })
+            });
+
+            const resultDiv = document.getElementById('result');
+            if (response.ok) {
+                const result = await response.json();
+                resultDiv.innerHTML = `Sentiment: ${result.sentiment}<br>Subjectivity: ${result.subjectivity.toFixed(2)}`;
+            } else {
+                const error = await response.json();
+                resultDiv.innerHTML = `<span class="error">${error.error}</span>`;
+            }
+        }
+
+        document.getElementById('theme-switch-checkbox').addEventListener('change', () => {
+            document.body.classList.toggle('light-mode');
+            document.querySelector('header').classList.toggle('light-mode');
+            document.querySelector('nav ul').classList.toggle('light-mode');
+            document.querySelector('.burger-menu span').classList.toggle('light-mode');
+            document.querySelector('#text-input').classList.toggle('light-mode');
+            document.querySelector('#result').classList.toggle('light-mode');
+            document.querySelector('footer').classList.toggle('light-mode');
+            document.querySelector('footer p').classList.toggle('light-mode');
+            
+            const label = document.querySelector('.theme-switch label');
+            if (document.body.classList.contains('light-mode')) {
+                label.classList.add('sun');
+                label.classList.remove('moon');
+            } else {
+                label.classList.add('moon');
+                label.classList.remove('sun');
+            }
+        });
+    </script>
+</body>
+</html>
